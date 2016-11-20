@@ -38,36 +38,5 @@ int main( int argc, const char * argv[] )
     std::cout << "EXIT" <<std::endl;
 
 
-
-
-
-//    FileHandler fh{1};
-
-//    fh.AddNewInfo({44, 2.2, 66});
-//    fh.AddNewInfo({22, 5.2, 65});
-//    fh.AddNewInfo({58, 6.6, 45});
-//    fh.AddNewInfo({67, 1.2, 14});
-//    fh.AddNewInfo({12, 0.2, 99});
-//    fh.AddNewInfo({58, 6.6, 45});
-
-//    fh.Finalize();
-
-//    FileHandler::RecordElem el{0};
-//    el.f = 5.6;
-
-//    std::cout << "F:" << el.f <<std::endl;
-//    std::cout << "I:" << el.i <<std::endl<<std::endl;
-
-//    el.i = htonl(el.i);
-
-//    std::cout << "F:" << el.f <<std::endl;
-//    std::cout << "I:" << el.i <<std::endl<<std::endl;
-
-//    el.i = ntohl(el.i);
-
-//    std::cout << "F:" << el.f <<std::endl;
-//    std::cout << "I:" << el.i <<std::endl;
-
-
     return 0;
 }
