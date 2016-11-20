@@ -1,8 +1,9 @@
 #ifndef SERVER_H
 #define SERVER_H
 
-#include "serv_common.h"
+#include "common.h"
 #include "filehandler.h"
+#include "bonjourservice.h"
 
 #include <sys/epoll.h>
 
@@ -15,10 +16,11 @@ class Server
 {
 public:
     static Server &Instance();
-    void Start(uint16_t port);
+    void Start(const char *serviceName, const char *serviceType, const char *serviceDomain, const uint16_t port);
     void Stop();
 
 private:
+    BonjourService bon_serv_;
     int listen_sock_ = -1;
     int epoll_fd_ = -1;
     std::map<int, std::shared_ptr<FileHandler>> handlers_;
@@ -37,6 +39,8 @@ private:
     bool SetNonBlocking(int sock);
     void AddNewClient();
     void HandleClient(const epoll_event &event);
+    static void Bonjour_Callback(DNSServiceRef sdRef, DNSServiceFlags flags, DNSServiceErrorType errorCode,
+                                 const char *name, const char *regtype, const char *domain, void *context);
 };
 
 } //NS

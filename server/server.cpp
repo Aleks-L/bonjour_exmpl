@@ -133,31 +133,42 @@ void Server::HandleClient(const struct epoll_event &event)
     }
 }
 
-void Server::Start(uint16_t port)
+void Server::Start(const char *serviceName, const char *serviceType, const char *serviceDomain, const uint16_t port)
 {
+
     if (!CreateListener(port))
         return;
 
-    if ( (epoll_fd_ = epoll_create(kMaxConnections + 1)) == -1)
+    if ( (epoll_fd_ = epoll_create(kMaxConnections + 2)) == -1)
     {
         std::cerr << "ERROR on epoll_create" << std::endl;
         return;
     }
 
+    // Listener socket to epoll
     struct epoll_event event;
-    struct epoll_event events[kMaxConnections];
-
-    //event.events = EPOLLIN | EPOLLHUP | EPOLLET;
     event.events = EPOLLIN | EPOLLET;
     event.data.fd = listen_sock_;
-
     if (epoll_ctl (epoll_fd_, EPOLL_CTL_ADD, listen_sock_, &event) == -1)
     {
         std::cerr << "ERROR on epoll_ctl. add listener" << std::endl;
         return;
     }
 
+    if (bon_serv_.StartService(serviceName, serviceType, serviceDomain, port, Bonjour_Callback, this))
+    {
+        // Bonjour socket to epoll
+        event.events = EPOLLIN | EPOLLET;
+        event.data.fd = bon_serv_.bonjour_fd();
+        if (epoll_ctl (epoll_fd_, EPOLL_CTL_ADD, bon_serv_.bonjour_fd(), &event) == -1)
+        {
+            std::cerr << "ERROR on epoll_ctl. add listener" << std::endl;
+            return;
+        }
+    }
 
+    std::cout << "Listening..." << std::endl;
+    struct epoll_event events[kMaxConnections];
     while(is_run_)
     {
         int event_cnt = epoll_wait(epoll_fd_, events, kMaxConnections, 2000);
@@ -169,6 +180,10 @@ void Server::Start(uint16_t port)
             {
                 AddNewClient();
             }
+            else if(events[i].data.fd == bon_serv_.bonjour_fd())
+            {
+                bon_serv_.HandleEvent();
+            }
             else
             {
                 // Handle message from client
@@ -177,6 +192,7 @@ void Server::Start(uint16_t port)
         }
     }
 
+    bon_serv_.StopService();
     close(listen_sock_);
     close(epoll_fd_);
 }
@@ -185,6 +201,30 @@ void Server::Stop()
 {
     std::cout << "STOP" << std::endl;
     is_run_ = false;
+}
+
+void Server::Bonjour_Callback
+(
+        DNSServiceRef       sdRef,
+        DNSServiceFlags     flags,
+        DNSServiceErrorType errorCode,
+        const char          *name,
+        const char          *regtype,
+        const char          *domain,
+        void                *context
+        )
+{
+    if (errorCode != kDNSServiceErr_NoError)
+    {
+        std::cerr << "Can't register Bonjour service. ErrCode:" << errorCode << std::endl;
+        return;
+    }
+    else if (flags & kDNSServiceFlagsAdd)
+    {
+        std::cout << "Service was registered in Bonjour" << std::endl;
+    }
+
+    //Server *_this = static_cast<Server*>(context);
 }
 
 } //NS

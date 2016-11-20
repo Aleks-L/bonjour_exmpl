@@ -1,6 +1,5 @@
 #include "bonjourservice.h"
 
-#include <dns_sd.h>
 #include <arpa/inet.h>
 #include <iostream>
 
@@ -13,66 +12,52 @@ BonjourService::BonjourService()
 
 }
 
-
-void service_callback
-(
-    DNSServiceRef sdRef,
-    DNSServiceFlags flags,
-    DNSServiceErrorType errorCode,
-    const char                          *name,
-    const char                          *regtype,
-    const char                          *domain,
-    void                                *context
-)
+BonjourService::~BonjourService()
 {
-    std::cout<<"CALLBACK"<<std::endl;
+    StopService();
 }
 
-
-
-void BonjourService::StartService()
+DNSServiceErrorType BonjourService::HandleEvent()
 {
-    DNSServiceRef sd_ref_;
-    const char * service_name_ = "jjj";
-    const char * service_type_ = "_tryst._tcp";
-    const char * service_domain_ = "local";
-    const uint16_t port_ = 4559;
+    return DNSServiceProcessResult(sd_ref_);
+}
 
-    DNSServiceErrorType err = DNSServiceRegister(&sd_ref_,
+bool BonjourService::StartService(const char *serviceName,
+                                  const char *serviceType,
+                                  const char *serviceDomain,
+                                  const uint16_t port,
+                                  DNSServiceRegisterReply callBack,
+                                  void *context)
+{
+    DNSServiceErrorType error = DNSServiceRegister(&sd_ref_,
                                                  kDNSServiceFlagsNoAutoRename,
                                                  0,
-                                                 service_name_,
-                                                 service_type_,
-                                                 service_domain_,
+                                                 serviceName,
+                                                 serviceType,
+                                                 serviceDomain,
                                                  nullptr,
-                                                 htons(port_),
+                                                 htons(port),
                                                  0,
                                                  nullptr,
-                                                 service_callback,
-                                                 nullptr);
+                                                 callBack,
+                                                 context);
 
-    //DNSServiceRegisterReply
-
-    if (err == kDNSServiceErr_NoError)
-        printf("OK");
-
-    int sock = DNSServiceRefSockFD(sd_ref_);
-
-    fd_set readset;
-    FD_ZERO(&readset);
-    FD_SET(sock, &readset);
-
-
-
-   // printf ()
-
-
-    while(1)
+    if (error != kDNSServiceErr_NoError)
     {
-        //int res = select(sock, &readset, NULL, NULL, NULL);
-        std::cout<<"while"<<std::endl;
-        sleep(1);
+        std::cerr << "DNSServiceRegister() return:" << error << std::endl;
+        return false;
     }
+
+
+    bonjour_fd_ = DNSServiceRefSockFD(sd_ref_);
+
+    return true;
 }
+
+void BonjourService::StopService()
+{
+    DNSServiceRefDeallocate(sd_ref_);
+}
+
 
 } //NS

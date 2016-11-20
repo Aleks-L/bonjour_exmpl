@@ -15,6 +15,7 @@ FileHandler::FileHandler(int id)
 
     std::time_t ts = std::time(nullptr);
     file_name_ = std::to_string(ts) + "-" + std::to_string(id);
+    std::cout << "New: " << file_name_ << std::endl;
 }
 
 FileHandler::~FileHandler()
@@ -39,7 +40,7 @@ bool FileHandler::Finalize()
     std::ifstream in_stream(file_name_ + ".csv");
     if(in_stream.fail())
     {
-        std::cout << "Can't open file" << std::endl;
+        std::cerr << "Can't open file" << std::endl;
         return false;
     }
 
@@ -82,6 +83,8 @@ bool FileHandler::Finalize()
     });
     WriteToFile(sort_container, "_sort3");
 
+    std::cout << "Finished: " << file_name_ << std::endl;
+
     return true;
 }
 
@@ -92,7 +95,7 @@ void FileHandler::WriteToFile(std::vector<Record> sort_container, const std::str
     out.open(fn, std::ofstream::out);
     if(out.fail())
     {
-        std::cout << "Can't open file:" << fn << std::endl;
+        std::cerr << "Can't open file:" << fn << std::endl;
         return;
     }
 

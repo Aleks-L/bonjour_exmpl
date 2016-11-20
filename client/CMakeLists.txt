@@ -13,15 +13,15 @@ project(bon-client)
 #########################################################################
 ## Header files
 
-#LIST (APPEND HDR_LIST
-#    ${PROJECT_DIR}/include/common.h
-#)
+LIST (APPEND HDR_LIST
+    ${PROJECT_DIR}/../inc/common.h
+)
 
 #########################################################################
 ## Source and header files
 
 LIST (APPEND PAIR_LIST
-    ${PROJECT_DIR}/bonjourbrowse
+    ${PROJECT_DIR}/clientnetwork
 )
 
 foreach (pair ${PAIR_LIST})
@@ -44,7 +44,7 @@ set(CMAKE_C_FLAGS_RELEASE "${CMAKE_C_FLAGS_RELEASE} -Wall")
 ## Include dirs
 include_directories(AFTER SYSTEM
         ${PROJECT_DIR}
-        ${PROJECT_DIR}/../third_party
+        ${PROJECT_DIR}/../inc
 )
 
 link_directories(${PROJECT_DIR}/../third_party)

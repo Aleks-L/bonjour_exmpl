@@ -23,7 +23,7 @@ endif()
 ## Header files
 
 LIST (APPEND HDR_LIST
-    ${PROJECT_DIR}/serv_common.h
+    ${PROJECT_DIR}/../inc/common.h
 )
 
 #########################################################################
@@ -58,7 +58,7 @@ set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -Wall")
 ## Include dirs
 include_directories(AFTER SYSTEM
         ${PROJECT_DIR}
-        ${PROJECT_DIR}/../third_party
+        ${PROJECT_DIR}/../inc
 )
 
 link_directories(${PROJECT_DIR}/../third_party)

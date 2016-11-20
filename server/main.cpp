@@ -1,16 +1,9 @@
-//#include <stdio.h>
-//#include <stdlib.h>
-//#include <unistd.h>
-#include <arpa/inet.h>
 #include <signal.h>
 
-#include <string>
 #include <iostream>
 
-#include "bonjourservice.h"
-//#include "filehandler.h"
 #include "server.h"
-#include "serv_common.h"
+#include "common.h"
 
 using namespace bon_server;
 
@@ -28,12 +21,7 @@ int main( int argc, const char * argv[] )
     sigIntHandler.sa_flags = 0;
     sigaction(SIGINT, &sigIntHandler, NULL);
 
-    // Bonjour init
-
-//    bon_server::BonjourService::StartService();
-
-
-    Server::Instance().Start(kServicePort);
+    Server::Instance().Start(kServiceName, kServiceType, kServiceDomain, kServicePort);
 
     std::cout << "EXIT" <<std::endl;
 
